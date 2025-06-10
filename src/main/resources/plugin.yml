@@ -1,0 +1,6 @@
+name: CachedEconomy
+main: dev.kaepsis.cachedeconomy.Main
+version: ${version}
+api-version: 1.21
+author: Kaepsis
+depend: [ Vault ]
