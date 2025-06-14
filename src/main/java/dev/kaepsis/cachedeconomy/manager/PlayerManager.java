@@ -1,6 +1,6 @@
 package dev.kaepsis.cachedeconomy.manager;
 
-import dev.kaepsis.cachedeconomy.storage.impl.CacheStorage;
+import dev.kaepsis.cachedeconomy.storage.impl.PlayerStorage;
 import org.bukkit.Bukkit;
 
 public class PlayerManager {
@@ -24,7 +24,7 @@ public class PlayerManager {
     }
 
     public boolean isNotRegistered(String playerName) {
-        return !CacheStorage.getInstance().getRegisteredPlayers().contains(playerName);
+        return !PlayerStorage.getInstance().getRegisteredPlayers().contains(playerName);
     }
 
 }

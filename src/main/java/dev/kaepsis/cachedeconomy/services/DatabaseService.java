@@ -13,7 +13,8 @@ public class DatabaseService {
     static final String DATABASE = GeneralConfig.getInstance().database;
     static final String HOST = GeneralConfig.getInstance().host;
     static final int PORT = GeneralConfig.getInstance().port;
-    static final String URL = String.format("jdbc:mysql://%s:%d/%s?characterEncoding=latin1", HOST, PORT, DATABASE);
+    static final boolean AUTO_RECONNECT = GeneralConfig.getInstance().autoReconnect;
+    static final String URL = String.format("jdbc:mysql://%s:%d/%s?characterEncoding=latin1&%s", HOST, PORT, DATABASE, AUTO_RECONNECT);
     private static DatabaseService instance = null;
     @Setter
     public Connection connection;
@@ -42,7 +43,7 @@ public class DatabaseService {
     void createDefaultTable() {
         String query = """
                 CREATE TABLE IF NOT EXISTS players (
-                    id INT NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                     name VARCHAR(17),
                     uuid VARCHAR(36),
                     balance DOUBLE(10, 2)

@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 public interface IStorage {
 
     CompletableFuture<Double> getCachedBalance(String playerName);
+
     double getBalance(String playerName);
 
     void setBalance(String playerName, double amount);

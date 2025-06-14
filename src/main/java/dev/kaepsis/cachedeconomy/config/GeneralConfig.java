@@ -11,15 +11,17 @@ public class GeneralConfig extends BaseConfig {
 
     private static GeneralConfig instance = null;
     @Path("storage.username")
-    public String username;
+    public String username = "root";
     @Path("storage.password")
-    public String password;
+    public String password = "root";
     @Path("storage.host")
-    public String host;
+    public String host = "localhost";
     @Path("storage.port")
-    public int port;
+    public int port = 3306;
     @Path("storage.database")
-    public String database;
+    public String database = "cachedeconomy";
+    @Path("storage.auto-reconnect")
+    public boolean autoReconnect = true;
     @Path("starting-balance")
     public double startingBalance = 0;
     @Path("currency-symbol")

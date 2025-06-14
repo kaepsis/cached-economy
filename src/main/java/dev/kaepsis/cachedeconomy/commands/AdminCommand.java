@@ -6,6 +6,8 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
 import dev.kaepsis.cachedeconomy.config.LangConfig;
+import dev.kaepsis.kmanagers.Chat;
+import org.bukkit.command.CommandSender;
 
 @CommandAlias("ace")
 @CommandPermission("cachedeconomy.admin")
@@ -13,9 +15,10 @@ import dev.kaepsis.cachedeconomy.config.LangConfig;
 public class AdminCommand extends BaseCommand {
 
     @Subcommand("reload")
-    public void reload() {
+    public void reload(CommandSender sender) {
         GeneralConfig.getInstance().reload();
         LangConfig.getInstance().reload();
+        Chat.getInstance().send(sender, LangConfig.getInstance().CONFIG_RELOADED);
     }
 
 }

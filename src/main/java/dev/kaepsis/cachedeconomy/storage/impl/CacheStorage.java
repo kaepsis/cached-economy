@@ -39,7 +39,8 @@ public class CacheStorage implements IStorage {
 
     @Override
     public void registerPlayer(Player player) {
-        this.getCachedBalance(player.getName()).thenAccept(balance -> Main.savedPlayers.put(player.getName(), balance));
+        double balance = PlayerStorage.getInstance().getBalance(player.getName());
+        Main.savedPlayers.put(player.getName(), balance);
     }
 
     @Override

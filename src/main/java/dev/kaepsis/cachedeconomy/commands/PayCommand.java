@@ -3,10 +3,11 @@ package dev.kaepsis.cachedeconomy.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.Default;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
 import dev.kaepsis.cachedeconomy.config.LangConfig;
-import dev.kaepsis.cachedeconomy.manager.ChatManager;
 import dev.kaepsis.cachedeconomy.storage.impl.CacheStorage;
+import dev.kaepsis.kmanagers.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -16,23 +17,28 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class PayCommand extends BaseCommand {
 
-    @CommandCompletion("players")
+    @CommandCompletion("@players")
+    @Default
     public void execute(Player player, String targetName, double amount) {
         List<String> registeredPlayers = CacheStorage.getInstance().getRegisteredPlayers();
         if (!registeredPlayers.contains(targetName)) {
-            ChatManager.getInstance().send(player, LangConfig.getInstance().PLAYER_NOT_FOUND, "{target}", targetName);
+            Chat.getInstance().send(player, LangConfig.getInstance().PLAYER_NOT_FOUND, "{target}", targetName);
             return;
         }
         Player target = Bukkit.getPlayer(targetName);
         if (player == target) {
-            ChatManager.getInstance().send(player, LangConfig.getInstance().CANT_SEND_TO_YOURSELF);
+            Chat.getInstance().send(player, LangConfig.getInstance().CANT_SEND_TO_YOURSELF);
             return;
         }
         boolean isOnline = Bukkit.getOnlinePlayers().stream()
                 .anyMatch(p -> p.getName().equalsIgnoreCase(targetName));
         CacheStorage.getInstance().getCachedBalance(player.getName()).thenAccept(balance -> {
+            if (isNotValidAmount(amount)) {
+                Chat.getInstance().send(player, LangConfig.getInstance().INVALID_AMOUNT, "{amount}", amount);
+                return;
+            }
             if (balance < amount) {
-                ChatManager.getInstance().send(player, LangConfig.getInstance().INSUFFICIENT_BALANCE);
+                Chat.getInstance().send(player, LangConfig.getInstance().INSUFFICIENT_BALANCE);
                 return;
             }
             CacheStorage.getInstance().getCachedBalance(targetName).thenAccept(targetBalance -> {
@@ -40,10 +46,14 @@ public class PayCommand extends BaseCommand {
                 double updatedTargetBalance = targetBalance + amount;
                 CacheStorage.getInstance().setBalance(player.getName(), updatedSenderBalance);
                 CacheStorage.getInstance().setBalance(targetName, updatedTargetBalance);
-                ChatManager.getInstance().send(player, LangConfig.getInstance().MONEY_SENT, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{target}", targetName);
-                ChatManager.getInstance().send(target, LangConfig.getInstance().MONEY_RECEIVED, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{sender}", player.getName());
+                Chat.getInstance().send(player, LangConfig.getInstance().MONEY_SENT, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{target}", targetName);
+                Chat.getInstance().send(target, LangConfig.getInstance().MONEY_RECEIVED, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{sender}", player.getName());
             });
         });
+    }
+
+    boolean isNotValidAmount(double amount) {
+        return amount < 0 || amount > Double.MAX_VALUE || Double.isNaN(amount) || Double.isInfinite(amount) || Integer.signum((int) amount) != 1;
     }
 
 }

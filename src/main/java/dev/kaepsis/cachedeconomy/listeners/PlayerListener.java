@@ -1,5 +1,6 @@
 package dev.kaepsis.cachedeconomy.listeners;
 
+import dev.kaepsis.cachedeconomy.Main;
 import dev.kaepsis.cachedeconomy.manager.PlayerManager;
 import dev.kaepsis.cachedeconomy.storage.impl.CacheStorage;
 import dev.kaepsis.cachedeconomy.storage.impl.PlayerStorage;
@@ -23,9 +24,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        CacheStorage.getInstance().getCachedBalance(player.getName()).thenAccept(balance -> {
-            PlayerStorage.getInstance().setBalance(player.getName(), balance);
-        });
+        CacheStorage.getInstance().getCachedBalance(player.getName()).thenAccept(balance -> PlayerStorage.getInstance().setBalance(player.getName(), balance));
+        Main.savedPlayers.remove(player.getName());
     }
 
 }
