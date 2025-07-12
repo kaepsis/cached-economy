@@ -1,5 +1,4 @@
 # CachedEconomy
-
 This plugin hooks into default Vault economy and caches all players to improve performances.
 
 ## Commands & Permissions
@@ -9,3 +8,6 @@ This plugin hooks into default Vault economy and caches all players to improve p
 /pay <player> <amount>
 /ace [reload] - cachedeconomy.admin
 ```
+
+## Dependencies
+The plugin requires [**Vault**](<https://www.spigotmc.org/resources/vault.34315/>) and [**PlaceholderAPI**](<https://www.spigotmc.org/resources/placeholderapi.6245/>)
