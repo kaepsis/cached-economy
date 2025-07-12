@@ -7,6 +7,7 @@ import dev.kaepsis.cachedeconomy.commands.EcoCommand;
 import dev.kaepsis.cachedeconomy.commands.PayCommand;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
 import dev.kaepsis.cachedeconomy.config.LangConfig;
+import dev.kaepsis.cachedeconomy.hooks.PlaceholderAPIHook;
 import dev.kaepsis.cachedeconomy.hooks.VaultHook;
 import dev.kaepsis.cachedeconomy.listeners.PlayerListener;
 import dev.kaepsis.cachedeconomy.services.DatabaseService;
@@ -35,6 +36,7 @@ public class Main extends JavaPlugin {
         config();
         DatabaseService.getInstance().openConnection();
         new VaultHook();
+        new PlaceholderAPIHook().register();
         DatabaseService.getInstance().cachePlayers();
         commands();
         events();
