@@ -26,7 +26,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
     compileOnly "com.github.kaepsis:VaultAPI:ennamo"
-    implementation "com.github.kaepsis:kmanagers:v1.8.4"
+    implementation "com.github.kaepsis:kutils:v1.9.3"
     compileOnly 'me.clip:placeholderapi:2.11.6'
 }
 

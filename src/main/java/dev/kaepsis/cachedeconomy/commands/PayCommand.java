@@ -4,10 +4,10 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Default;
+import com.github.kaepsis.Chat;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
 import dev.kaepsis.cachedeconomy.config.LangConfig;
 import dev.kaepsis.cachedeconomy.storage.impl.CacheStorage;
-import dev.kaepsis.kmanagers.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

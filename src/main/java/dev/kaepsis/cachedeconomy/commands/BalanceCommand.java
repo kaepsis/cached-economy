@@ -2,11 +2,11 @@ package dev.kaepsis.cachedeconomy.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import com.github.kaepsis.Chat;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
 import dev.kaepsis.cachedeconomy.config.LangConfig;
 import dev.kaepsis.cachedeconomy.storage.impl.CacheStorage;
 import dev.kaepsis.cachedeconomy.storage.impl.PlayerStorage;
-import dev.kaepsis.kmanagers.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
