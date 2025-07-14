@@ -42,6 +42,10 @@ public class LangConfig extends BaseConfig {
     public String ECO_BALANCE_YOURS = "&6&lECONOMY &8| &fYou have &e{amount}{symbol}";
     @Path("eco.balance.target")
     public String ECO_BALANCE_TARGET = "&6&lECONOMY &8| &e{target} &fhas &e{amount}{symbol}";
+    @Path("eco.baltop.top")
+    public String ECO_BALTOP_TOP = "&e--== &6&lBALTOP &e==--";
+    @Path("eco.baltop.entry")
+    public String ECO_BALTOP_ENTRY = "&6{ranking}. &f{playerName}&7: &e{amount}{symbol}";
 
     private LangConfig() {
     }

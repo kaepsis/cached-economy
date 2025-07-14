@@ -6,6 +6,7 @@ import dev.kaepsis.cachedeconomy.storage.IStorage;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class CacheStorage implements IStorage {
@@ -46,5 +47,13 @@ public class CacheStorage implements IStorage {
     @Override
     public List<String> getRegisteredPlayers() {
         return Main.savedPlayers.keySet().stream().toList();
+    }
+
+    public List<Map.Entry<String, Double>> getTopTen() {
+        return Main.savedPlayers.entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .limit(10)
+                .toList();
     }
 }

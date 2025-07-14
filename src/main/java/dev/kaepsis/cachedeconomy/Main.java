@@ -1,10 +1,7 @@
 package dev.kaepsis.cachedeconomy;
 
 import co.aikar.commands.PaperCommandManager;
-import dev.kaepsis.cachedeconomy.commands.AdminCommand;
-import dev.kaepsis.cachedeconomy.commands.BalanceCommand;
-import dev.kaepsis.cachedeconomy.commands.EcoCommand;
-import dev.kaepsis.cachedeconomy.commands.PayCommand;
+import dev.kaepsis.cachedeconomy.commands.*;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
 import dev.kaepsis.cachedeconomy.config.LangConfig;
 import dev.kaepsis.cachedeconomy.hooks.PlaceholderAPIHook;
@@ -23,8 +20,6 @@ import java.util.logging.Logger;
 public class Main extends JavaPlugin {
 
     public static Main instance;
-
-    public static PaperCommandManager manager;
 
     public static Map<String, Double> savedPlayers;
 
@@ -55,12 +50,13 @@ public class Main extends JavaPlugin {
     }
 
     void commands() {
-        manager = new PaperCommandManager(this);
-        completions();
+        PaperCommandManager manager = new PaperCommandManager(this);
+        completions(manager);
         manager.registerCommand(new PayCommand());
         manager.registerCommand(new EcoCommand());
         manager.registerCommand(new AdminCommand());
         manager.registerCommand(new BalanceCommand());
+        manager.registerCommand(new BaltopCommand());
     }
 
     void events() {
@@ -68,7 +64,7 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new PlayerListener(), this);
     }
 
-    void completions() {
+    void completions(PaperCommandManager manager) {
         manager.getCommandCompletions().registerAsyncCompletion("registeredPlayers", c -> PlayerStorage.getInstance().getRegisteredPlayers());
         manager.getCommandCompletions().registerAsyncCompletion("cachedPlayers", c -> CacheStorage.getInstance().getRegisteredPlayers());
     }
