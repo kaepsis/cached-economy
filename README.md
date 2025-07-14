@@ -38,6 +38,13 @@ Compatible with **Spigot / Paper** on **1.21+**.
 
 ---
 
+## Placeholders
+
+CachedEconomy's placeholders are registered internally.
+```text
+%cachedeconomy_balance% - returns the cached balance amount
+```
+
 ## Contribuiting
 
 Suggestions, bug reports or contribuitions are welcome!
