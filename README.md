@@ -45,6 +45,8 @@ CachedEconomy's placeholders are registered internally.
 %cachedeconomy_balance% - returns the cached balance amount
 ```
 
+---
+
 ## Contribuiting
 
 Suggestions, bug reports or contribuitions are welcome!
