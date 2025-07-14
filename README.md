@@ -32,8 +32,9 @@ Compatible with **Spigot / Paper** on **1.21+**.
 ```text
 /balance [player]            - cachedeconomy.balance.others (for viewing others)
 /eco <give/set/reset> <name> - cachedeconomy.eco
-/pay <player> <amount>       - uses Vault's standard permissions
+/pay <player> <amount>       - no permission needed
 /ace [reload]                - cachedeconomy.admin
+/baltop                      - no permission needed
 ```
 
 ---
