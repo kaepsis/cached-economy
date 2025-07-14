@@ -1,6 +1,6 @@
 package dev.kaepsis.cachedeconomy.hooks;
 
-import dev.kaepsis.cachedeconomy.storage.impl.CacheStorage;
+import dev.kaepsis.cachedeconomy.Main;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -36,8 +36,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     @Override
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
         if (params.equals("balance")) {
-            double balance = CacheStorage.getInstance().getBalance(player.getName());
-            return String.valueOf(balance);
+            return String.valueOf(Main.savedPlayers.get(player.getName()));
         }
         return null;
     }

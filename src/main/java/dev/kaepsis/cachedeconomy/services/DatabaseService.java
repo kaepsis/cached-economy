@@ -2,7 +2,6 @@ package dev.kaepsis.cachedeconomy.services;
 
 import dev.kaepsis.cachedeconomy.Main;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
-import lombok.Setter;
 
 import java.sql.*;
 
@@ -16,7 +15,6 @@ public class DatabaseService {
     static final boolean AUTO_RECONNECT = GeneralConfig.getInstance().autoReconnect;
     static final String URL = String.format("jdbc:mysql://%s:%d/%s?characterEncoding=latin1&%s", HOST, PORT, DATABASE, AUTO_RECONNECT);
     private static DatabaseService instance = null;
-    @Setter
     public Connection connection;
 
     private DatabaseService() {
@@ -27,6 +25,10 @@ public class DatabaseService {
             instance = new DatabaseService();
         }
         return instance;
+    }
+
+    public void setConnection(Connection connection) {
+        this.connection = connection;
     }
 
     public synchronized void openConnection() {

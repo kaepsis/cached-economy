@@ -16,7 +16,8 @@ import dev.kaepsis.cachedeconomy.storage.impl.PlayerStorage;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin {
@@ -25,14 +26,14 @@ public class Main extends JavaPlugin {
 
     public static PaperCommandManager manager;
 
-    public static HashMap<String, Double> savedPlayers;
+    public static Map<String, Double> savedPlayers;
 
     public static Logger logger = Logger.getLogger("Minecraft");
 
     @Override
     public void onEnable() {
         instance = this;
-        savedPlayers = new HashMap<>();
+        savedPlayers = new ConcurrentHashMap<>();
         config();
         DatabaseService.getInstance().openConnection();
         new VaultHook();

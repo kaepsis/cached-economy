@@ -16,12 +16,10 @@ public class BalanceCommand extends BaseCommand {
 
     @Default
     public void root(Player player) {
-        CacheStorage.getInstance().getCachedBalance(player.getName()).thenAccept(balance -> {
-            Chat.getInstance().send(player,
-                    LangConfig.getInstance().ECO_BALANCE_YOURS, "{amount}",
-                    balance, "{symbol}", GeneralConfig.getInstance().currencySymbol
-            );
-        });
+        CacheStorage.getInstance().getCachedBalance(player.getName()).thenAccept(balance -> Chat.getInstance().send(player,
+                LangConfig.getInstance().ECO_BALANCE_YOURS, "{amount}",
+                balance, "{symbol}", GeneralConfig.getInstance().currencySymbol
+        ));
     }
 
     @CommandPermission("cachedeconomy.balance.others")
