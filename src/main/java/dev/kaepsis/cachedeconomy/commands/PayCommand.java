@@ -32,24 +32,22 @@ public class PayCommand extends BaseCommand {
         }
         boolean isOnline = Bukkit.getOnlinePlayers().stream()
                 .anyMatch(p -> p.getName().equalsIgnoreCase(targetName));
-        CacheStorage.getInstance().getCachedBalance(player.getName()).thenAccept(balance -> {
-            if (isNotValidAmount(amount)) {
-                Chat.getInstance().send(player, LangConfig.getInstance().INVALID_AMOUNT, "{amount}", amount);
-                return;
-            }
-            if (balance < amount) {
-                Chat.getInstance().send(player, LangConfig.getInstance().INSUFFICIENT_BALANCE);
-                return;
-            }
-            CacheStorage.getInstance().getCachedBalance(targetName).thenAccept(targetBalance -> {
-                double updatedSenderBalance = balance - amount;
-                double updatedTargetBalance = targetBalance + amount;
-                CacheStorage.getInstance().setBalance(player.getName(), updatedSenderBalance);
-                CacheStorage.getInstance().setBalance(targetName, updatedTargetBalance);
-                Chat.getInstance().send(player, LangConfig.getInstance().MONEY_SENT, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{target}", targetName);
-                Chat.getInstance().send(target, LangConfig.getInstance().MONEY_RECEIVED, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{sender}", player.getName());
-            });
-        });
+        double balance = CacheStorage.getInstance().getCachedBalance(targetName);
+        if (isNotValidAmount(amount)) {
+            Chat.getInstance().send(player, LangConfig.getInstance().INVALID_AMOUNT, "{amount}", amount);
+            return;
+        }
+        if (balance < amount) {
+            Chat.getInstance().send(player, LangConfig.getInstance().INSUFFICIENT_BALANCE);
+            return;
+        }
+        double targetBalance = CacheStorage.getInstance().getCachedBalance(targetName);
+        double updatedSenderBalance = balance - amount;
+        double updatedTargetBalance = targetBalance + amount;
+        CacheStorage.getInstance().setBalance(player.getName(), updatedSenderBalance);
+        CacheStorage.getInstance().setBalance(targetName, updatedTargetBalance);
+        Chat.getInstance().send(player, LangConfig.getInstance().MONEY_SENT, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{target}", targetName);
+        Chat.getInstance().send(target, LangConfig.getInstance().MONEY_RECEIVED, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{sender}", player.getName());
     }
 
     boolean isNotValidAmount(double amount) {

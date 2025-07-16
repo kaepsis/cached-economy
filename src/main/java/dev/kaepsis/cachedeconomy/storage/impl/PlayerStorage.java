@@ -3,6 +3,7 @@ package dev.kaepsis.cachedeconomy.storage.impl;
 import dev.kaepsis.cachedeconomy.Main;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
 import dev.kaepsis.cachedeconomy.services.DatabaseService;
+import dev.kaepsis.cachedeconomy.storage.BalanceUtils;
 import dev.kaepsis.cachedeconomy.storage.IStorage;
 import org.bukkit.entity.Player;
 
@@ -28,8 +29,14 @@ public class PlayerStorage implements IStorage {
     }
 
     @Override
-    public CompletableFuture<Double> getCachedBalance(String playerName) {
-        return CompletableFuture.supplyAsync(() -> 0D);
+    public double getCachedBalance(String playerName) {
+        return 0D;
+    }
+
+    @Override
+    public String getBalanceFormatted(String playerName) {
+        double balance = getBalance(playerName);
+        return BalanceUtils.getInstance().formatBalance(balance);
     }
 
     @Override

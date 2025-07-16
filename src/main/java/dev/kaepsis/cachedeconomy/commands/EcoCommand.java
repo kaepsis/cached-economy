@@ -12,8 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.concurrent.CompletableFuture;
-
 @CommandAlias("eco")
 @CommandPermission("cachedeconomy.eco")
 @SuppressWarnings("unused")
@@ -27,20 +25,18 @@ public class EcoCommand extends BaseCommand {
             Chat.getInstance().send(sender, LangConfig.getInstance().PLAYER_NOT_FOUND, "{target}", targetName);
             return;
         }
-        CompletableFuture<Double> balanceFuture = PlayerManager.getInstance().isOnline(targetName)
+        double balance = PlayerManager.getInstance().isOnline(targetName)
                 ? CacheStorage.getInstance().getCachedBalance(targetName)
                 : PlayerStorage.getInstance().getCachedBalance(targetName);
         Player target = Bukkit.getPlayer(targetName);
-        balanceFuture.thenAccept(balance -> {
-            double updatedBalance = balance + amount;
-            if (!PlayerManager.getInstance().isOnline(targetName)) {
-                PlayerStorage.getInstance().setBalance(targetName, updatedBalance);
-            } else {
-                CacheStorage.getInstance().setBalance(targetName, updatedBalance);
-                Chat.getInstance().send(target, LangConfig.getInstance().ECO_GIVE_RECEIVER, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
-            }
-            Chat.getInstance().send(sender, LangConfig.getInstance().ECO_GIVE_SENDER, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
-        });
+        double updatedBalance = balance + amount;
+        if (!PlayerManager.getInstance().isOnline(targetName)) {
+            PlayerStorage.getInstance().setBalance(targetName, updatedBalance);
+        } else {
+            CacheStorage.getInstance().setBalance(targetName, updatedBalance);
+            Chat.getInstance().send(target, LangConfig.getInstance().ECO_GIVE_RECEIVER, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+        }
+        Chat.getInstance().send(sender, LangConfig.getInstance().ECO_GIVE_SENDER, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
     }
 
     @Subcommand("set")
@@ -51,19 +47,17 @@ public class EcoCommand extends BaseCommand {
             Chat.getInstance().send(sender, LangConfig.getInstance().PLAYER_NOT_FOUND, "{target}", targetName);
             return;
         }
-        CompletableFuture<Double> balanceFuture = PlayerManager.getInstance().isOnline(targetName)
+        double balance = PlayerManager.getInstance().isOnline(targetName)
                 ? CacheStorage.getInstance().getCachedBalance(targetName)
                 : PlayerStorage.getInstance().getCachedBalance(targetName);
         Player target = Bukkit.getPlayer(targetName);
-        balanceFuture.thenAccept(balance -> {
-            if (!PlayerManager.getInstance().isOnline(targetName)) {
-                PlayerStorage.getInstance().setBalance(targetName, amount);
-            } else {
-                CacheStorage.getInstance().setBalance(targetName, amount);
-                Chat.getInstance().send(target, LangConfig.getInstance().ECO_SET_RECEIVER, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
-            }
-            Chat.getInstance().send(sender, LangConfig.getInstance().ECO_SET_SENDER, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
-        });
+        if (!PlayerManager.getInstance().isOnline(targetName)) {
+            PlayerStorage.getInstance().setBalance(targetName, amount);
+        } else {
+            CacheStorage.getInstance().setBalance(targetName, amount);
+            Chat.getInstance().send(target, LangConfig.getInstance().ECO_SET_RECEIVER, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+        }
+        Chat.getInstance().send(sender, LangConfig.getInstance().ECO_SET_SENDER, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
     }
 
     @Subcommand("reset")

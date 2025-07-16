@@ -2,6 +2,7 @@ package dev.kaepsis.cachedeconomy.storage.impl;
 
 import dev.kaepsis.cachedeconomy.Main;
 import dev.kaepsis.cachedeconomy.config.GeneralConfig;
+import dev.kaepsis.cachedeconomy.storage.BalanceUtils;
 import dev.kaepsis.cachedeconomy.storage.IStorage;
 import org.bukkit.entity.Player;
 
@@ -24,8 +25,8 @@ public class CacheStorage implements IStorage {
     }
 
     @Override
-    public CompletableFuture<Double> getCachedBalance(String playerName) {
-        return CompletableFuture.supplyAsync(() -> Main.savedPlayers.getOrDefault(playerName, GeneralConfig.getInstance().startingBalance));
+    public double getCachedBalance(String playerName) {
+        return Main.savedPlayers.getOrDefault(playerName, GeneralConfig.getInstance().startingBalance);
     }
 
     @Override
@@ -36,6 +37,12 @@ public class CacheStorage implements IStorage {
     @Override
     public void setBalance(String playerName, double amount) {
         CompletableFuture.runAsync(() -> Main.savedPlayers.put(playerName, amount));
+    }
+
+    @Override
+    public String getBalanceFormatted(String playerName) {
+        double balance = getCachedBalance(playerName);
+        return BalanceUtils.getInstance().formatBalance(balance);
     }
 
     @Override
@@ -56,4 +63,11 @@ public class CacheStorage implements IStorage {
                 .limit(10)
                 .toList();
     }
+
+    public Map.Entry<String, Double> getTopTenAt(int position) {
+        List<Map.Entry<String, Double>> topTen = getTopTen();
+        if (position < 0 || position >= topTen.size()) return null;
+        return topTen.get(position);
+    }
+
 }

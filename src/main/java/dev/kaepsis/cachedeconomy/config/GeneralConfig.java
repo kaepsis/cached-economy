@@ -26,6 +26,14 @@ public class GeneralConfig extends BaseConfig {
     public double startingBalance = 0;
     @Path("currency-symbol")
     public String currencySymbol = "$";
+    @Path("formattings.thousands")
+    public String thousands = "k";
+    @Path("formattings.millions")
+    public String millions = "M";
+    @Path("formattings.billions")
+    public String billions = "B";
+    @Path("formattings.trillions")
+    public String trillions = "T";
 
     private GeneralConfig() {
     }

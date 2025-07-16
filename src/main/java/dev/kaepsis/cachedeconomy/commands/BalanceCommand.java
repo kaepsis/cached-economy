@@ -16,10 +16,10 @@ public class BalanceCommand extends BaseCommand {
 
     @Default
     public void root(Player player) {
-        CacheStorage.getInstance().getCachedBalance(player.getName()).thenAccept(balance -> Chat.getInstance().send(player,
+        Chat.getInstance().send(player,
                 LangConfig.getInstance().ECO_BALANCE_YOURS, "{amount}",
-                balance, "{symbol}", GeneralConfig.getInstance().currencySymbol
-        ));
+                CacheStorage.getInstance().getBalanceFormatted(player.getName()), "{symbol}", GeneralConfig.getInstance().currencySymbol
+        );
     }
 
     @CommandPermission("cachedeconomy.balance.others")
@@ -28,22 +28,18 @@ public class BalanceCommand extends BaseCommand {
     @Default
     public void withArguments(Player player, String targetName) {
         if (Bukkit.getOnlinePlayers().stream().noneMatch(p -> p.getName().equalsIgnoreCase(targetName))) {
-            PlayerStorage.getInstance().getCachedBalance(targetName).thenAccept(balance -> {
-                Chat.getInstance().send(player,
-                        LangConfig.getInstance().ECO_BALANCE_TARGET, "{amount}",
-                        balance, "{symbol}", GeneralConfig.getInstance().currencySymbol,
-                        "{target}", targetName
-                );
-            });
-            return;
-        }
-        CacheStorage.getInstance().getCachedBalance(targetName).thenAccept(balance -> {
             Chat.getInstance().send(player,
                     LangConfig.getInstance().ECO_BALANCE_TARGET, "{amount}",
-                    balance, "{symbol}", GeneralConfig.getInstance().currencySymbol,
+                    PlayerStorage.getInstance().getBalanceFormatted(targetName), "{symbol}", GeneralConfig.getInstance().currencySymbol,
                     "{target}", targetName
             );
-        });
+            return;
+        }
+        Chat.getInstance().send(player,
+                LangConfig.getInstance().ECO_BALANCE_TARGET, "{amount}",
+                CacheStorage.getInstance().getBalanceFormatted(player.getName()), "{symbol}", GeneralConfig.getInstance().currencySymbol,
+                "{target}", targetName
+        );
     }
 
 }

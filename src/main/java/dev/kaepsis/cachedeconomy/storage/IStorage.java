@@ -3,11 +3,10 @@ package dev.kaepsis.cachedeconomy.storage;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public interface IStorage {
 
-    CompletableFuture<Double> getCachedBalance(String playerName);
+    double getCachedBalance(String playerName);
 
     double getBalance(String playerName);
 
@@ -16,5 +15,7 @@ public interface IStorage {
     void registerPlayer(Player player);
 
     List<String> getRegisteredPlayers();
+
+    String getBalanceFormatted(String playerName);
 
 }

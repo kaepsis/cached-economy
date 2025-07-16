@@ -24,7 +24,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        CacheStorage.getInstance().getCachedBalance(player.getName()).thenAccept(balance -> PlayerStorage.getInstance().setBalance(player.getName(), balance));
+        double balance = CacheStorage.getInstance().getBalance(player.getName());
+        PlayerStorage.getInstance().setBalance(player.getName(), balance);
         Main.savedPlayers.remove(player.getName());
     }
 

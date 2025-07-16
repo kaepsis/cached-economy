@@ -14,6 +14,8 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -22,6 +24,7 @@ public class Main extends JavaPlugin {
     public static Main instance;
 
     public static Map<String, Double> savedPlayers;
+    public static NavigableMap<Double, String> suffixes;
 
     public static Logger logger = Logger.getLogger("Minecraft");
 
@@ -30,6 +33,12 @@ public class Main extends JavaPlugin {
         instance = this;
         savedPlayers = new ConcurrentHashMap<>();
         config();
+        suffixes = new TreeMap<>() {{
+            put(1_000D, GeneralConfig.getInstance().thousands);
+            put(1_000_000D, GeneralConfig.getInstance().millions);
+            put(1_000_000_000D, GeneralConfig.getInstance().billions);
+            put(1_000_000_000_000D, GeneralConfig.getInstance().trillions);
+        }};
         DatabaseService.getInstance().openConnection();
         new VaultHook();
         new PlaceholderAPIHook().register();

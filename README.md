@@ -43,7 +43,10 @@ Compatible with **Spigot / Paper** on **1.21+**.
 
 CachedEconomy's placeholders are registered internally.
 ```text
-%cachedeconomy_balance% - returns the cached balance amount
+%cachedeconomy_balance%                   - returns the cached balance amount
+%cachedeconomy_balance_formatted%         - returns the cached balance amount but **formatted**
+%cachedeconomy_baltop_<1 to 10>_name%     - returns the player name in baltop at position (from 1 to 10)
+%cachedeconomy_baltop_<1 to 10>_value%    - returns the amount of the player in baltop at position (from 1 to 10)
 ```
 
 ---
