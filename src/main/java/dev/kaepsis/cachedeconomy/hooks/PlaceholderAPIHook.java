@@ -1,5 +1,6 @@
 package dev.kaepsis.cachedeconomy.hooks;
 
+import dev.kaepsis.cachedeconomy.storage.BalanceUtils;
 import dev.kaepsis.cachedeconomy.storage.impl.CacheStorage;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -53,6 +54,18 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
                 Map.Entry<String, Double> entry = CacheStorage.getInstance().getTopTenAt(index);
                 if (entry == null) return isName ? "N/A" : "0";
                 return isName ? entry.getKey() : String.valueOf(entry.getValue());
+            } catch (NumberFormatException e) {
+                return "N/A";
+            }
+        }
+        if (identifier.matches("baltop_\\d+_value_formatted")) {
+            String[] parts = identifier.split("_");
+            try {
+                int index = Integer.parseInt(parts[1]) - 1;
+                boolean isName = parts[2].equalsIgnoreCase("name");
+                Map.Entry<String, Double> entry = CacheStorage.getInstance().getTopTenAt(index);
+                if (entry == null) return isName ? "N/A" : "0";
+                return isName ? entry.getKey() : String.valueOf(BalanceUtils.getInstance().formatBalance(entry.getValue()));
             } catch (NumberFormatException e) {
                 return "N/A";
             }
