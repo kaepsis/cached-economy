@@ -66,6 +66,7 @@ public class Main extends JavaPlugin {
         manager.registerCommand(new AdminCommand());
         manager.registerCommand(new BalanceCommand());
         manager.registerCommand(new BaltopCommand());
+        manager.registerCommand(new BetCommand());
     }
 
     void events() {

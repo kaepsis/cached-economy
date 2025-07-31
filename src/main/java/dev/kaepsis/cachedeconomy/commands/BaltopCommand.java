@@ -16,11 +16,11 @@ public class BaltopCommand extends BaseCommand {
 
     @Default
     public void root(Player player) {
-        Chat.getInstance().send(player, LangConfig.getInstance().ECO_BALTOP_TOP);
+        Chat.getInstance().send(player, LangConfig.getInstance().ecoBaltopTop);
         AtomicInteger count = new AtomicInteger(1);
         CacheStorage.getInstance().getTopTen().forEach(entry -> Chat.getInstance().send(
                 player,
-                LangConfig.getInstance().ECO_BALTOP_ENTRY,
+                LangConfig.getInstance().ecoBaltopEntry,
                 "{ranking}", count.getAndIncrement(),
                 "{playerName}", entry.getKey(),
                 "{amount}", entry.getValue(),

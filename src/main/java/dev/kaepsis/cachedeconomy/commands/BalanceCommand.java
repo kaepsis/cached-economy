@@ -11,13 +11,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 @CommandAlias("balance|bal")
-@SuppressWarnings("unused")
 public class BalanceCommand extends BaseCommand {
 
     @Default
     public void root(Player player) {
         Chat.getInstance().send(player,
-                LangConfig.getInstance().ECO_BALANCE_YOURS, "{amount}",
+                LangConfig.getInstance().ecoBalanceYours, "{amount}",
                 CacheStorage.getInstance().getBalanceFormatted(player.getName()), "{symbol}", GeneralConfig.getInstance().currencySymbol
         );
     }
@@ -29,14 +28,14 @@ public class BalanceCommand extends BaseCommand {
     public void withArguments(Player player, String targetName) {
         if (Bukkit.getOnlinePlayers().stream().noneMatch(p -> p.getName().equalsIgnoreCase(targetName))) {
             Chat.getInstance().send(player,
-                    LangConfig.getInstance().ECO_BALANCE_TARGET, "{amount}",
+                    LangConfig.getInstance().ecoBalanceTarget, "{amount}",
                     PlayerStorage.getInstance().getBalanceFormatted(targetName), "{symbol}", GeneralConfig.getInstance().currencySymbol,
                     "{target}", targetName
             );
             return;
         }
         Chat.getInstance().send(player,
-                LangConfig.getInstance().ECO_BALANCE_TARGET, "{amount}",
+                LangConfig.getInstance().ecoBalanceTarget, "{amount}",
                 CacheStorage.getInstance().getBalanceFormatted(player.getName()), "{symbol}", GeneralConfig.getInstance().currencySymbol,
                 "{target}", targetName
         );

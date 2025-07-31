@@ -35,6 +35,7 @@ Compatible with **Spigot / Paper** on **1.21+**.
 /pay <player> <amount>       - no permission needed
 /ace [reload]                - cachedeconomy.admin
 /baltop                      - no permission needed
+/bet <amount | *>            - no permission needed
 ```
 
 ---

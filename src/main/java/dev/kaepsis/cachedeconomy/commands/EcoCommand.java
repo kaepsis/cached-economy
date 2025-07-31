@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 
 @CommandAlias("eco")
 @CommandPermission("cachedeconomy.eco")
-@SuppressWarnings("unused")
 public class EcoCommand extends BaseCommand {
 
     @Subcommand("give")
@@ -22,7 +21,7 @@ public class EcoCommand extends BaseCommand {
     @CommandCompletion("@registeredPlayers")
     public void give(CommandSender sender, String targetName, double amount) {
         if (PlayerManager.getInstance().isNotRegistered(targetName)) {
-            Chat.getInstance().send(sender, LangConfig.getInstance().PLAYER_NOT_FOUND, "{target}", targetName);
+            Chat.getInstance().send(sender, LangConfig.getInstance().dbPlayerNotFound, "{target}", targetName);
             return;
         }
         double balance = PlayerManager.getInstance().isOnline(targetName)
@@ -34,9 +33,9 @@ public class EcoCommand extends BaseCommand {
             PlayerStorage.getInstance().setBalance(targetName, updatedBalance);
         } else {
             CacheStorage.getInstance().setBalance(targetName, updatedBalance);
-            Chat.getInstance().send(target, LangConfig.getInstance().ECO_GIVE_RECEIVER, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+            Chat.getInstance().send(target, LangConfig.getInstance().ecoGiveReceiver, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
         }
-        Chat.getInstance().send(sender, LangConfig.getInstance().ECO_GIVE_SENDER, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+        Chat.getInstance().send(sender, LangConfig.getInstance().ecoGiveSender, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
     }
 
     @Subcommand("set")
@@ -44,20 +43,17 @@ public class EcoCommand extends BaseCommand {
     @CommandCompletion("@registeredPlayers")
     public void set(CommandSender sender, String targetName, double amount) {
         if (PlayerManager.getInstance().isNotRegistered(targetName)) {
-            Chat.getInstance().send(sender, LangConfig.getInstance().PLAYER_NOT_FOUND, "{target}", targetName);
+            Chat.getInstance().send(sender, LangConfig.getInstance().dbPlayerNotFound, "{target}", targetName);
             return;
         }
-        double balance = PlayerManager.getInstance().isOnline(targetName)
-                ? CacheStorage.getInstance().getCachedBalance(targetName)
-                : PlayerStorage.getInstance().getCachedBalance(targetName);
         Player target = Bukkit.getPlayer(targetName);
         if (!PlayerManager.getInstance().isOnline(targetName)) {
             PlayerStorage.getInstance().setBalance(targetName, amount);
         } else {
             CacheStorage.getInstance().setBalance(targetName, amount);
-            Chat.getInstance().send(target, LangConfig.getInstance().ECO_SET_RECEIVER, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+            Chat.getInstance().send(target, LangConfig.getInstance().ecoSetReceiver, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
         }
-        Chat.getInstance().send(sender, LangConfig.getInstance().ECO_SET_SENDER, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+        Chat.getInstance().send(sender, LangConfig.getInstance().ecoSetSender, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
     }
 
     @Subcommand("reset")
@@ -69,16 +65,16 @@ public class EcoCommand extends BaseCommand {
                 if (PlayerManager.getInstance().isOnline(name)) {
                     Player target = Bukkit.getPlayer(name);
                     CacheStorage.getInstance().setBalance(name, GeneralConfig.getInstance().startingBalance);
-                    Chat.getInstance().send(target, LangConfig.getInstance().ECO_RESET_RECEIVER, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+                    Chat.getInstance().send(target, LangConfig.getInstance().ecoResetReceiver, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
                 } else {
                     PlayerStorage.getInstance().setBalance(name, GeneralConfig.getInstance().startingBalance);
                 }
             }
-            Chat.getInstance().send(sender, LangConfig.getInstance().ECO_RESET_ALL, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+            Chat.getInstance().send(sender, LangConfig.getInstance().ecoResetAll, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
             return;
         }
         if (PlayerManager.getInstance().isNotRegistered(targetName)) {
-            Chat.getInstance().send(sender, LangConfig.getInstance().PLAYER_NOT_FOUND, "{target}", targetName);
+            Chat.getInstance().send(sender, LangConfig.getInstance().dbPlayerNotFound, "{target}", targetName);
             return;
         }
         Player target = Bukkit.getPlayer(targetName);
@@ -86,9 +82,9 @@ public class EcoCommand extends BaseCommand {
             PlayerStorage.getInstance().setBalance(targetName, GeneralConfig.getInstance().startingBalance);
         } else {
             CacheStorage.getInstance().setBalance(targetName, GeneralConfig.getInstance().startingBalance);
-            Chat.getInstance().send(target, LangConfig.getInstance().ECO_RESET_RECEIVER, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+            Chat.getInstance().send(target, LangConfig.getInstance().ecoResetReceiver, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
         }
-        Chat.getInstance().send(sender, LangConfig.getInstance().ECO_RESET_SENDER, "{target}", targetName, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+        Chat.getInstance().send(sender, LangConfig.getInstance().ecoResetSender, "{target}", targetName, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
     }
 
 }

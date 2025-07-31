@@ -11,14 +11,13 @@ import org.bukkit.command.CommandSender;
 
 @CommandAlias("ace")
 @CommandPermission("cachedeconomy.admin")
-@SuppressWarnings("unused")
 public class AdminCommand extends BaseCommand {
 
     @Subcommand("reload")
     public void reload(CommandSender sender) {
         GeneralConfig.getInstance().reload();
         LangConfig.getInstance().reload();
-        Chat.getInstance().send(sender, LangConfig.getInstance().CONFIG_RELOADED);
+        Chat.getInstance().send(sender, LangConfig.getInstance().gnConfigReloaded);
     }
 
 }
