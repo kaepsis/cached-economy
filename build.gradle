@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'dev.kaepsis.cachedeconomy'
-version = 'SPIGOT-RELEASE-1.1'
+version = 'SPIGOT-RELEASE-1.1+fixGradle2'
 description = "cached-economy"
 
 java {
@@ -71,10 +71,30 @@ shadowJar {
 jar.enabled = false
 assemble.dependsOn shadowJar
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifact shadowJar
+afterEvaluate {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId = project.group
+                artifactId = project.name
+                version = project.version
+
+                artifact shadowJar
+
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+
+                    configurations.compileClasspath.allDependencies.each { dep ->
+                        if (dep.name != 'unspecified') {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dep.group)
+                            dependencyNode.appendNode('artifactId', dep.name)
+                            dependencyNode.appendNode('version', dep.version)
+                            dependencyNode.appendNode('scope', 'provided')
+                        }
+                    }
+                }
+            }
         }
     }
 }
