@@ -9,23 +9,37 @@ import dev.kaepsis.cachedeconomy.config.LangConfig;
 import dev.kaepsis.cachedeconomy.storage.impl.CacheStorage;
 import org.bukkit.entity.Player;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.Map;
 
 @CommandAlias("baltop")
 public class BaltopCommand extends BaseCommand {
+    private final Chat chat;
+    private final LangConfig langConfig;
+    private final CacheStorage cacheStorage;
+    private final String currencySymbol;
+
+    public BaltopCommand() {
+        this.chat = Chat.getInstance();
+        this.langConfig = LangConfig.getInstance();
+        this.currencySymbol = GeneralConfig.getInstance().currencySymbol;
+        this.cacheStorage = CacheStorage.getInstance();
+    }
 
     @Default
     public void root(Player player) {
-        Chat.getInstance().send(player, LangConfig.getInstance().ecoBaltopTop);
-        AtomicInteger count = new AtomicInteger(1);
-        CacheStorage.getInstance().getTopTen().forEach(entry -> Chat.getInstance().send(
-                player,
-                LangConfig.getInstance().ecoBaltopEntry,
-                "{ranking}", count.getAndIncrement(),
-                "{playerName}", entry.getKey(),
-                "{amount}", entry.getValue(),
-                "{symbol}", GeneralConfig.getInstance().currencySymbol
-        ));
-    }
+        chat.send(player, langConfig.ecoBaltopTop);
 
+        List<Map.Entry<String, Double>> topPlayers = cacheStorage.getTopTen();
+
+        int ranking = 1;
+        for (Map.Entry<String, Double> entry : topPlayers) {
+            chat.send(player, langConfig.ecoBaltopEntry,
+                    "{ranking}", ranking++,
+                    "{playerName}", entry.getKey(),
+                    "{amount}", entry.getValue(),
+                    "{symbol}", currencySymbol
+            );
+        }
+    }
 }

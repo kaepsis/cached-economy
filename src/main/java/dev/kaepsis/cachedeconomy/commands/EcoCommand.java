@@ -15,76 +15,119 @@ import org.bukkit.entity.Player;
 @CommandAlias("eco")
 @CommandPermission("cachedeconomy.eco")
 public class EcoCommand extends BaseCommand {
+    private final Chat chat;
+    private final LangConfig langConfig;
+    private final GeneralConfig generalConfig;
+    private final PlayerManager playerManager;
+    private final CacheStorage cacheStorage;
+    private final PlayerStorage playerStorage;
+    private final String currencySymbol;
+
+    public EcoCommand() {
+        this.chat = Chat.getInstance();
+        this.langConfig = LangConfig.getInstance();
+        this.generalConfig = GeneralConfig.getInstance();
+        this.playerManager = PlayerManager.getInstance();
+        this.cacheStorage = CacheStorage.getInstance();
+        this.playerStorage = PlayerStorage.getInstance();
+        this.currencySymbol = generalConfig.currencySymbol;
+    }
 
     @Subcommand("give")
     @Syntax("<player> <amount>")
     @CommandCompletion("@registeredPlayers")
     public void give(CommandSender sender, String targetName, double amount) {
-        if (PlayerManager.getInstance().isNotRegistered(targetName)) {
-            Chat.getInstance().send(sender, LangConfig.getInstance().dbPlayerNotFound, "{target}", targetName);
+        if (playerManager.isNotRegistered(targetName)) {
+            chat.send(sender, langConfig.dbPlayerNotFound,
+                    "{target}", targetName,
+                    "{symbol}", currencySymbol
+            );
             return;
         }
-        double balance = PlayerManager.getInstance().isOnline(targetName)
-                ? CacheStorage.getInstance().getCachedBalance(targetName)
-                : PlayerStorage.getInstance().getCachedBalance(targetName);
-        Player target = Bukkit.getPlayer(targetName);
+
+        double balance = playerManager.isOnline(targetName) ?
+                cacheStorage.getCachedBalance(targetName) :
+                playerStorage.getCachedBalance(targetName);
+
         double updatedBalance = balance + amount;
-        if (!PlayerManager.getInstance().isOnline(targetName)) {
-            PlayerStorage.getInstance().setBalance(targetName, updatedBalance);
-        } else {
-            CacheStorage.getInstance().setBalance(targetName, updatedBalance);
-            Chat.getInstance().send(target, LangConfig.getInstance().ecoGiveReceiver, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
-        }
-        Chat.getInstance().send(sender, LangConfig.getInstance().ecoGiveSender, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+        updateBalanceAndNotify(sender, targetName, amount, updatedBalance, langConfig.ecoGiveReceiver, langConfig.ecoGiveSender);
     }
 
     @Subcommand("set")
     @Syntax("<player> <amount>")
     @CommandCompletion("@registeredPlayers")
     public void set(CommandSender sender, String targetName, double amount) {
-        if (PlayerManager.getInstance().isNotRegistered(targetName)) {
-            Chat.getInstance().send(sender, LangConfig.getInstance().dbPlayerNotFound, "{target}", targetName);
+        if (playerManager.isNotRegistered(targetName)) {
+            chat.send(sender, langConfig.dbPlayerNotFound,
+                    "{target}", targetName,
+                    "{symbol}", currencySymbol
+            );
             return;
         }
-        Player target = Bukkit.getPlayer(targetName);
-        if (!PlayerManager.getInstance().isOnline(targetName)) {
-            PlayerStorage.getInstance().setBalance(targetName, amount);
-        } else {
-            CacheStorage.getInstance().setBalance(targetName, amount);
-            Chat.getInstance().send(target, LangConfig.getInstance().ecoSetReceiver, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
-        }
-        Chat.getInstance().send(sender, LangConfig.getInstance().ecoSetSender, "{target}", targetName, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+
+        updateBalanceAndNotify(sender, targetName, amount, amount, langConfig.ecoSetReceiver, langConfig.ecoSetSender);
     }
 
     @Subcommand("reset")
     @Syntax("<player|*>")
     @CommandCompletion("@registeredPlayers")
     public void reset(CommandSender sender, String targetName) {
+        double startingBalance = generalConfig.startingBalance;
+
         if (targetName.equals("*")) {
-            for (String name : PlayerStorage.getInstance().getRegisteredPlayers()) {
-                if (PlayerManager.getInstance().isOnline(name)) {
-                    Player target = Bukkit.getPlayer(name);
-                    CacheStorage.getInstance().setBalance(name, GeneralConfig.getInstance().startingBalance);
-                    Chat.getInstance().send(target, LangConfig.getInstance().ecoResetReceiver, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
-                } else {
-                    PlayerStorage.getInstance().setBalance(name, GeneralConfig.getInstance().startingBalance);
-                }
-            }
-            Chat.getInstance().send(sender, LangConfig.getInstance().ecoResetAll, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+            resetAllPlayers(sender);
             return;
         }
-        if (PlayerManager.getInstance().isNotRegistered(targetName)) {
-            Chat.getInstance().send(sender, LangConfig.getInstance().dbPlayerNotFound, "{target}", targetName);
+
+        if (playerManager.isNotRegistered(targetName)) {
+            chat.send(sender, langConfig.dbPlayerNotFound,
+                    "{target}", targetName,
+                    "{symbol}", currencySymbol
+            );
             return;
         }
-        Player target = Bukkit.getPlayer(targetName);
-        if (!PlayerManager.getInstance().isOnline(targetName)) {
-            PlayerStorage.getInstance().setBalance(targetName, GeneralConfig.getInstance().startingBalance);
-        } else {
-            CacheStorage.getInstance().setBalance(targetName, GeneralConfig.getInstance().startingBalance);
-            Chat.getInstance().send(target, LangConfig.getInstance().ecoResetReceiver, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
-        }
-        Chat.getInstance().send(sender, LangConfig.getInstance().ecoResetSender, "{target}", targetName, "{amount}", GeneralConfig.getInstance().startingBalance, "{symbol}", GeneralConfig.getInstance().currencySymbol);
+
+        updateBalanceAndNotify(sender, targetName, startingBalance, startingBalance,
+                langConfig.ecoResetReceiver, langConfig.ecoResetSender);
     }
 
+    private void resetAllPlayers(CommandSender sender) {
+        double startingBalance = generalConfig.startingBalance;
+        for (String name : playerStorage.getRegisteredPlayers()) {
+            if (playerManager.isOnline(name)) {
+                Player target = Bukkit.getPlayer(name);
+                cacheStorage.setBalance(name, startingBalance);
+                chat.send(target, langConfig.ecoResetReceiver,
+                        "{amount}", startingBalance,
+                        "{symbol}", currencySymbol
+                );
+            } else {
+                playerStorage.setBalance(name, startingBalance);
+            }
+        }
+        chat.send(sender, langConfig.ecoResetAll,
+                "{amount}", startingBalance,
+                "{symbol}", currencySymbol
+        );
+    }
+
+    private void updateBalanceAndNotify(CommandSender sender, String targetName, double amount,
+                                        double newBalance, String receiverMessage, String senderMessage) {
+        if (playerManager.isOnline(targetName)) {
+            Player target = Bukkit.getPlayer(targetName);
+            cacheStorage.setBalance(targetName, newBalance);
+            chat.send(target, receiverMessage,
+                    "{amount}", amount,
+                    "{symbol}", currencySymbol
+            );
+        } else {
+            playerStorage.setBalance(targetName, newBalance);
+        }
+
+        chat.send(sender, senderMessage,
+                "{target}", targetName,
+                "{amount}", amount,
+                "{symbol}", currencySymbol
+        );
+    }
 }

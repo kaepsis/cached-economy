@@ -22,10 +22,8 @@ import java.util.logging.Logger;
 public class Main extends JavaPlugin {
 
     public static Main instance;
-
     public static Map<String, Double> savedPlayers;
     public static NavigableMap<Double, String> suffixes;
-
     public static Logger logger = Logger.getLogger("Minecraft");
 
     @Override
@@ -33,24 +31,37 @@ public class Main extends JavaPlugin {
         instance = this;
         savedPlayers = new ConcurrentHashMap<>();
         config();
+        initializeSuffixes();
+        initializeDatabase();
+        setupHooks();
+        commands();
+        events();
+        CacheStorage.getInstance().loadAllPlayers();
+    }
+
+    @Override
+    public void onDisable() {
+        DatabaseService.getInstance().shutdown();
+        instance = null;
+    }
+
+    private void initializeSuffixes() {
         suffixes = new TreeMap<>() {{
             put(1_000D, GeneralConfig.getInstance().thousands);
             put(1_000_000D, GeneralConfig.getInstance().millions);
             put(1_000_000_000D, GeneralConfig.getInstance().billions);
             put(1_000_000_000_000D, GeneralConfig.getInstance().trillions);
         }};
-        DatabaseService.getInstance().openConnection();
-        new VaultHook();
-        new PlaceholderAPIHook().register();
-        DatabaseService.getInstance().cachePlayers();
-        commands();
-        events();
     }
 
-    @Override
-    public void onDisable() {
-        instance = null;
-        DatabaseService.getInstance().removeCachedPlayers();
+    private void initializeDatabase() {
+        DatabaseService.getInstance();
+        DatabaseService.getInstance().cachePlayers();
+    }
+
+    private void setupHooks() {
+        new VaultHook();
+        new PlaceholderAPIHook().register();
     }
 
     void config() {
@@ -75,8 +86,13 @@ public class Main extends JavaPlugin {
     }
 
     void completions(PaperCommandManager manager) {
-        manager.getCommandCompletions().registerAsyncCompletion("registeredPlayers", c -> PlayerStorage.getInstance().getRegisteredPlayers());
-        manager.getCommandCompletions().registerAsyncCompletion("cachedPlayers", c -> CacheStorage.getInstance().getRegisteredPlayers());
+        manager.getCommandCompletions().registerAsyncCompletion(
+                "registeredPlayers",
+                c -> PlayerStorage.getInstance().getRegisteredPlayers()
+        );
+        manager.getCommandCompletions().registerAsyncCompletion(
+                "cachedPlayers",
+                c -> CacheStorage.getInstance().getRegisteredPlayers()
+        );
     }
-
 }

@@ -6,15 +6,20 @@ import dev.kaepsis.cachedeconomy.storage.BalanceUtils;
 import dev.kaepsis.cachedeconomy.storage.IStorage;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class CacheStorage implements IStorage {
 
+    private static final int TOP_PLAYERS_LIMIT = 10;
+    private static final long CACHE_DURATION = 1000;
     private static CacheStorage instance;
+    private final PriorityQueue<Map.Entry<String, Double>> topPlayers;
+    private List<String> cachedPlayersList;
+    private long lastPlayersListUpdate;
 
     private CacheStorage() {
+        topPlayers = new PriorityQueue<>((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()));
     }
 
     public static CacheStorage getInstance() {
@@ -36,7 +41,10 @@ public class CacheStorage implements IStorage {
 
     @Override
     public void setBalance(String playerName, double amount) {
-        CompletableFuture.runAsync(() -> Main.savedPlayers.put(playerName, amount));
+        CompletableFuture.runAsync(() -> {
+            Main.savedPlayers.put(playerName, amount);
+            updateTopPlayers(playerName, amount);
+        });
     }
 
     @Override
@@ -53,21 +61,43 @@ public class CacheStorage implements IStorage {
 
     @Override
     public List<String> getRegisteredPlayers() {
-        return Main.savedPlayers.keySet().stream().toList();
+        long currentTime = System.currentTimeMillis();
+        if (cachedPlayersList == null || currentTime - lastPlayersListUpdate > CACHE_DURATION) {
+            cachedPlayersList = new ArrayList<>(Main.savedPlayers.keySet());
+            lastPlayersListUpdate = currentTime;
+        }
+        return cachedPlayersList;
     }
 
+
     public List<Map.Entry<String, Double>> getTopTen() {
-        return Main.savedPlayers.entrySet()
-                .stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                .limit(10)
-                .toList();
+        ArrayList<Map.Entry<String, Double>> sortedList = new ArrayList<>(topPlayers);
+        sortedList.sort((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()));
+        return sortedList;
     }
 
     public Map.Entry<String, Double> getTopTenAt(int position) {
-        List<Map.Entry<String, Double>> topTen = getTopTen();
-        if (position < 0 || position >= topTen.size()) return null;
-        return topTen.get(position);
+        if (position < 0 || position >= TOP_PLAYERS_LIMIT) return null;
+        ArrayList<Map.Entry<String, Double>> sortedList = new ArrayList<>(topPlayers);
+        sortedList.sort((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()));
+        return sortedList.get(position);
     }
 
+
+    private synchronized void updateTopPlayers(String playerName, double balance) {
+        topPlayers.removeIf(entry -> entry.getKey().equalsIgnoreCase(playerName));
+        topPlayers.offer(new AbstractMap.SimpleEntry<>(playerName, balance));
+        while (topPlayers.size() > TOP_PLAYERS_LIMIT) {
+            topPlayers.poll();
+        }
+    }
+
+    public void loadAllPlayers() {
+        List<String> players = PlayerStorage.getInstance().getRegisteredPlayers();
+        for (String playerName : players) {
+            double balance = PlayerStorage.getInstance().getBalance(playerName);
+            Main.savedPlayers.put(playerName, balance);
+            updateTopPlayers(playerName, balance);
+        }
+    }
 }

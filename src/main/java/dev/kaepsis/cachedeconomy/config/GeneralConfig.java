@@ -20,8 +20,6 @@ public class GeneralConfig extends BaseConfig {
     public int port = 3306;
     @Path("storage.database")
     public String database = "cachedeconomy";
-    @Path("storage.auto-reconnect")
-    public boolean autoReconnect = true;
     @Path("starting-balance")
     public double startingBalance = 0;
     @Path("currency-symbol")

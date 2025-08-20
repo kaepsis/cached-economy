@@ -13,11 +13,25 @@ import org.bukkit.entity.Player;
 @CommandAlias("balance|bal")
 public class BalanceCommand extends BaseCommand {
 
+    private final String currencySymbol;
+    private final Chat chat;
+    private final CacheStorage cacheStorage;
+    private final PlayerStorage playerStorage;
+    private final LangConfig langConfig;
+
+    public BalanceCommand() {
+        this.currencySymbol = GeneralConfig.getInstance().currencySymbol;
+        this.chat = Chat.getInstance();
+        this.cacheStorage = CacheStorage.getInstance();
+        this.playerStorage = PlayerStorage.getInstance();
+        this.langConfig = LangConfig.getInstance();
+    }
+
     @Default
     public void root(Player player) {
-        Chat.getInstance().send(player,
-                LangConfig.getInstance().ecoBalanceYours, "{amount}",
-                CacheStorage.getInstance().getBalanceFormatted(player.getName()), "{symbol}", GeneralConfig.getInstance().currencySymbol
+        chat.send(player, langConfig.ecoBalanceYours,
+                "{amount}", cacheStorage.getBalanceFormatted(player.getName()),
+                "{symbol}", currencySymbol
         );
     }
 
@@ -26,19 +40,21 @@ public class BalanceCommand extends BaseCommand {
     @CommandCompletion("@registeredPlayers")
     @Default
     public void withArguments(Player player, String targetName) {
-        if (Bukkit.getOnlinePlayers().stream().noneMatch(p -> p.getName().equalsIgnoreCase(targetName))) {
-            Chat.getInstance().send(player,
-                    LangConfig.getInstance().ecoBalanceTarget, "{amount}",
-                    PlayerStorage.getInstance().getBalanceFormatted(targetName), "{symbol}", GeneralConfig.getInstance().currencySymbol,
-                    "{target}", targetName
-            );
+        boolean isOnline = Bukkit.getPlayer(targetName) != null;
+
+        if (!isOnline && !playerStorage.isPlayerRegistered(targetName)) {
+            chat.send(player, langConfig.dbPlayerNotFound, "{target}", targetName);
             return;
         }
-        Chat.getInstance().send(player,
-                LangConfig.getInstance().ecoBalanceTarget, "{amount}",
-                CacheStorage.getInstance().getBalanceFormatted(player.getName()), "{symbol}", GeneralConfig.getInstance().currencySymbol,
-                "{target}", targetName
+
+        String formattedBalance = isOnline ?
+                cacheStorage.getBalanceFormatted(targetName) :
+                playerStorage.getBalanceFormatted(targetName);
+
+        chat.send(player, langConfig.ecoBalanceTarget,
+                "{symbol}", currencySymbol,
+                "{target}", targetName,
+                "{amount}", formattedBalance
         );
     }
-
 }

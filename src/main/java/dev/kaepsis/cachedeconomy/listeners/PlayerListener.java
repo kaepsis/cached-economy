@@ -11,22 +11,32 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
+    private final PlayerManager playerManager;
+    private final PlayerStorage playerStorage;
+    private final CacheStorage cacheStorage;
+
+    public PlayerListener() {
+        this.playerManager = PlayerManager.getInstance();
+        this.playerStorage = PlayerStorage.getInstance();
+        this.cacheStorage = CacheStorage.getInstance();
+    }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (PlayerManager.getInstance().isNotRegistered(player.getName())) {
-            PlayerStorage.getInstance().registerPlayer(player);
+        if (playerManager.isNotRegistered(player.getName())) {
+            playerStorage.registerPlayer(player);
         }
-        CacheStorage.getInstance().registerPlayer(player);
+        cacheStorage.registerPlayer(player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        double balance = CacheStorage.getInstance().getBalance(player.getName());
-        PlayerStorage.getInstance().setBalance(player.getName(), balance);
-        Main.savedPlayers.remove(player.getName());
-    }
+        String playerName = player.getName();
 
+        double balance = cacheStorage.getBalance(playerName);
+        playerStorage.setBalance(playerName, balance);
+        Main.savedPlayers.remove(playerName);
+    }
 }

@@ -16,44 +16,89 @@ import java.util.List;
 
 @CommandAlias("pay")
 public class PayCommand extends BaseCommand {
+    private final Chat chat;
+    private final LangConfig langConfig;
+    private final CacheStorage cacheStorage;
+    private final BalanceUtils balanceUtils;
+    private final String currencySymbol;
+
+    public PayCommand() {
+        this.chat = Chat.getInstance();
+        this.langConfig = LangConfig.getInstance();
+        this.cacheStorage = CacheStorage.getInstance();
+        this.balanceUtils = BalanceUtils.getInstance();
+        this.currencySymbol = GeneralConfig.getInstance().currencySymbol;
+    }
 
     @CommandCompletion("@players")
     @Default
     public void execute(Player player, String targetName, double amount) {
-        List<String> registeredPlayers = CacheStorage.getInstance().getRegisteredPlayers();
-        if (!registeredPlayers.contains(targetName)) {
-            Chat.getInstance().send(player, LangConfig.getInstance().dbPlayerNotFound, "{target}", targetName);
+        List<String> registeredPlayers = cacheStorage.getRegisteredPlayers();
+
+        if (!isValidTransaction(player, targetName, amount, registeredPlayers)) {
             return;
         }
+
         Player target = Bukkit.getPlayer(targetName);
-        if (player == target) {
-            Chat.getInstance().send(player, LangConfig.getInstance().payCannotSendToYourself);
-            return;
-        }
-        boolean isOnline = Bukkit.getOnlinePlayers()
-                .stream()
-                .anyMatch(p -> p.getName().equalsIgnoreCase(targetName));
-        if (!isOnline) {
-            Chat.getInstance().send(player, LangConfig.getInstance().gnPlayerNotFound, "{target}", targetName);
-            return;
-        }
-        double balance = CacheStorage.getInstance().getCachedBalance(targetName);
-        if (BalanceUtils.getInstance().isNotValidAmount(amount)) {
-            Chat.getInstance().send(player, LangConfig.getInstance().gnInvalidAmount, "{amount}", amount);
-            return;
-        }
-        if (balance < amount) {
-            Chat.getInstance().send(player, LangConfig.getInstance().gnInsufficientBalance);
-            return;
-        }
-        double targetBalance = CacheStorage.getInstance().getCachedBalance(targetName);
-        double updatedSenderBalance = balance - amount;
-        double updatedTargetBalance = targetBalance + amount;
-        CacheStorage.getInstance().setBalance(player.getName(), updatedSenderBalance);
-        CacheStorage.getInstance().setBalance(targetName, updatedTargetBalance);
-        Chat.getInstance().send(player, LangConfig.getInstance().payMoneySent, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{target}", targetName);
-        Chat.getInstance().send(target, LangConfig.getInstance().payMoneyReceived, "{amount}", amount, "{symbol}", GeneralConfig.getInstance().currencySymbol, "{sender}", player.getName());
+        processTransaction(player, target, targetName, amount);
     }
 
+    private boolean isValidTransaction(Player player, String targetName, double amount, List<String> registeredPlayers) {
+        if (!registeredPlayers.contains(targetName)) {
+            chat.send(player, langConfig.dbPlayerNotFound,
+                    "{target}", targetName,
+                    "{symbol}", currencySymbol
+            );
+            return false;
+        }
 
+        if (player.getName().equalsIgnoreCase(targetName)) {
+            chat.send(player, langConfig.payCannotSendToYourself);
+            return false;
+        }
+
+        if (Bukkit.getOnlinePlayers().stream().noneMatch(p -> p.getName().equalsIgnoreCase(targetName))) {
+            chat.send(player, langConfig.gnPlayerNotFound,
+                    "{target}", targetName,
+                    "{symbol}", currencySymbol
+            );
+            return false;
+        }
+
+        if (balanceUtils.isNotValidAmount(String.valueOf(amount))) {
+            chat.send(player, langConfig.gnInvalidAmount,
+                    "{amount}", amount,
+                    "{symbol}", currencySymbol
+            );
+            return false;
+        }
+
+        double senderBalance = cacheStorage.getCachedBalance(player.getName());
+        if (senderBalance < amount) {
+            chat.send(player, langConfig.gnInsufficientBalance);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void processTransaction(Player sender, Player target, String targetName, double amount) {
+        double senderBalance = cacheStorage.getCachedBalance(sender.getName());
+        double targetBalance = cacheStorage.getCachedBalance(targetName);
+
+        cacheStorage.setBalance(sender.getName(), senderBalance - amount);
+        cacheStorage.setBalance(targetName, targetBalance + amount);
+
+        chat.send(sender, langConfig.payMoneySent,
+                "{amount}", amount,
+                "{target}", targetName,
+                "{symbol}", currencySymbol
+        );
+
+        chat.send(target, langConfig.payMoneyReceived,
+                "{amount}", amount,
+                "{sender}", sender.getName(),
+                "{symbol}", currencySymbol
+        );
+    }
 }

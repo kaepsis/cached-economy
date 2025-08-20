@@ -1,11 +1,17 @@
 plugins {
     id 'java'
-    id 'com.gradleup.shadow' version '9.0.0-rc2'
+    id 'com.gradleup.shadow' version '9.0.2'
 }
 
 group = 'dev.kaepsis.cachedeconomy'
-version = 'SPIGOT-RELEASE-1.0'
+version = 'SPIGOT-RELEASE-1.1'
 description = "cached-economy"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -21,32 +27,45 @@ repositories {
 
 dependencies {
     implementation 'com.github.NaTorOG:SimpleConfig:1.0.6'
-    compileOnly 'org.spigotmc:spigot-api:1.21.7-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT'
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
     compileOnly "com.github.kaepsis:VaultAPI:ennamo"
     implementation "com.github.kaepsis:kutils:v1.9.6.5"
     compileOnly 'me.clip:placeholderapi:2.11.6'
+    implementation 'com.zaxxer:HikariCP:7.0.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:deprecation', '-Xlint:unchecked']
 }
 
 processResources {
     def props = [version: version]
     inputs.properties props
-    filteringCharset = 'UTF-8'
     filesMatching('plugin.yml') {
+        filteringCharset = 'UTF-8'
         expand props
     }
-}
-
-compileJava.options.encoding = 'UTF-8'
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
 }
 
 shadowJar {
     minimize()
     mergeServiceFiles()
     archiveFileName = "${project.description}-${project.version}.jar"
-    relocate 'co.aikar.commands', 'dev.kaepsis.cachedeconomy.libs.acf'
-    relocate 'co.aikar.locales', 'dev.kaepsis.cachedeconomy.libs.locales'
+
+    relocate('co.aikar.commands', "${project.group}.libs.acf")
+    relocate('co.aikar.locales', "${project.group}.libs.locales")
+    relocate('com.zaxxer.hikari', "${project.group}.libs.hikari")
+
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/LICENSE*'
+    exclude 'META-INF/NOTICE*'
+    exclude 'LICENSE*'
+    exclude 'NOTICE*'
 }
+
+jar.enabled = false
+assemble.dependsOn shadowJar

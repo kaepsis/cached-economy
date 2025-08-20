@@ -19,11 +19,21 @@ public class BetCommand extends BaseCommand {
     private static final int MAX_RANDOM = 101;
     private static final double WINNING_MULTIPLIER = 2.0;
 
-    private final Chat chat = Chat.getInstance();
-    private final LangConfig langConfig = LangConfig.getInstance();
-    private final CacheStorage cacheStorage = CacheStorage.getInstance();
-    private final BalanceUtils balanceUtils = BalanceUtils.getInstance();
-    private final String currencySymbol = GeneralConfig.getInstance().currencySymbol;
+    private final Chat chat;
+    private final LangConfig langConfig;
+    private final CacheStorage cacheStorage;
+    private final BalanceUtils balanceUtils;
+    private final String currencySymbol;
+    private final ThreadLocalRandom random;
+
+    public BetCommand() {
+        this.chat = Chat.getInstance();
+        this.langConfig = LangConfig.getInstance();
+        this.cacheStorage = CacheStorage.getInstance();
+        this.balanceUtils = BalanceUtils.getInstance();
+        this.currencySymbol = GeneralConfig.getInstance().currencySymbol;
+        this.random = ThreadLocalRandom.current();
+    }
 
     @Default
     public void root(Player player) {
@@ -36,7 +46,7 @@ public class BetCommand extends BaseCommand {
         double playerBalance = cacheStorage.getCachedBalance(player.getName());
 
         if (amount.equals("*")) {
-            handleAllInBet(player, playerBalance);
+            handleBet(player, playerBalance, playerBalance);
             return;
         }
 
@@ -44,32 +54,20 @@ public class BetCommand extends BaseCommand {
             return;
         }
 
-        double parsedAmount = Double.parseDouble(amount);
-        handleRegularBet(player, playerBalance, parsedAmount);
-    }
-
-    private void handleAllInBet(Player player, double playerBalance) {
-        boolean isWin = isWinningBet();
-        double newBalance = isWin ? playerBalance * WINNING_MULTIPLIER : 0;
-
-        cacheStorage.setBalance(player.getName(), newBalance);
-
-        chat.send(
-                player,
-                isWin ? langConfig.betAllWin : langConfig.betAllLost,
-                "{amount}", newBalance,
-                "{symbol}", currencySymbol
-        );
+        handleBet(player, playerBalance, Double.parseDouble(amount));
     }
 
     private boolean isValidBet(Player player, String amount, double playerBalance) {
         if (balanceUtils.isNotValidAmount(amount)) {
-            chat.send(player, langConfig.gnInvalidAmount, "{amount}", amount);
+            chat.send(player, langConfig.gnInvalidAmount,
+                    "{amount}", amount,
+                    "{symbol}", currencySymbol
+            );
             return false;
         }
 
-        double parsedAmount = Double.parseDouble(amount);
-        if (playerBalance < parsedAmount) {
+        double betAmount = Double.parseDouble(amount);
+        if (playerBalance < betAmount) {
             chat.send(player, langConfig.gnInsufficientBalance);
             return false;
         }
@@ -77,27 +75,21 @@ public class BetCommand extends BaseCommand {
         return true;
     }
 
-    private void handleRegularBet(Player player, double playerBalance, double betAmount) {
-        boolean isWin = isWinningBet();
-        double newBalance = calculateNewBalance(playerBalance, betAmount, isWin);
+    private void handleBet(Player player, double currentBalance, double betAmount) {
+        boolean isWin = random.nextInt(MAX_RANDOM) >= WIN_THRESHOLD;
+        double newBalance = isWin ?
+                currentBalance + (betAmount * WINNING_MULTIPLIER) :
+                currentBalance - betAmount;
 
         cacheStorage.setBalance(player.getName(), newBalance);
 
         chat.send(
                 player,
-                isWin ? langConfig.betWin : langConfig.betLost,
+                isWin ?
+                        (betAmount == currentBalance ? langConfig.betAllWin : langConfig.betWin) :
+                        (betAmount == currentBalance ? langConfig.betAllLost : langConfig.betLost),
                 "{amount}", newBalance,
                 "{symbol}", currencySymbol
         );
-    }
-
-    private boolean isWinningBet() {
-        return ThreadLocalRandom.current().nextInt(0, MAX_RANDOM) >= WIN_THRESHOLD;
-    }
-
-    private double calculateNewBalance(double currentBalance, double betAmount, boolean isWin) {
-        return isWin ?
-                currentBalance + (betAmount * WINNING_MULTIPLIER) :
-                currentBalance - betAmount;
     }
 }

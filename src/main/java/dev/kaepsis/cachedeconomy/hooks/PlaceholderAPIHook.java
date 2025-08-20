@@ -8,8 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class PlaceholderAPIHook extends PlaceholderExpansion {
+
+    private static final Pattern BALTOP_PATTERN = Pattern.compile("baltop_(\\d+)_(name|value)");
+    private static final Pattern BALTOP_FORMATTED_PATTERN = Pattern.compile("baltop_(\\d+)_value_formatted");
 
     @Override
     public @NotNull String getIdentifier() {
@@ -39,38 +43,46 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     @Override
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String identifier) {
         if (player == null) return null;
-        if (identifier.equals("balance")) {
-            double balance = CacheStorage.getInstance().getCachedBalance(player.getName());
-            return String.valueOf(balance);
+
+        switch (identifier) {
+            case "balance":
+                return String.valueOf(CacheStorage.getInstance().getCachedBalance(player.getName()));
+            case "balance_formatted":
+                return CacheStorage.getInstance().getBalanceFormatted(player.getName());
         }
-        if (identifier.equalsIgnoreCase("balance_formatted")) {
-            return CacheStorage.getInstance().getBalanceFormatted(player.getName());
+
+        if (BALTOP_PATTERN.matcher(identifier).matches()) {
+            return handleBaltopRequest(identifier, false);
         }
-        if (identifier.matches("baltop_\\d+_(name|value)")) {
-            String[] parts = identifier.split("_");
-            try {
-                int index = Integer.parseInt(parts[1]) - 1;
-                boolean isName = parts[2].equalsIgnoreCase("name");
-                Map.Entry<String, Double> entry = CacheStorage.getInstance().getTopTenAt(index);
-                if (entry == null) return isName ? "N/A" : "0";
-                return isName ? entry.getKey() : String.valueOf(entry.getValue());
-            } catch (NumberFormatException e) {
-                return "N/A";
-            }
+
+        if (BALTOP_FORMATTED_PATTERN.matcher(identifier).matches()) {
+            return handleBaltopRequest(identifier, true);
         }
-        if (identifier.matches("baltop_\\d+_value_formatted")) {
-            String[] parts = identifier.split("_");
-            try {
-                int index = Integer.parseInt(parts[1]) - 1;
-                boolean isName = parts[2].equalsIgnoreCase("name");
-                Map.Entry<String, Double> entry = CacheStorage.getInstance().getTopTenAt(index);
-                if (entry == null) return isName ? "N/A" : "0";
-                return isName ? entry.getKey() : String.valueOf(BalanceUtils.getInstance().formatBalance(entry.getValue()));
-            } catch (NumberFormatException e) {
-                return "N/A";
-            }
-        }
+
         return null;
     }
 
+    private String handleBaltopRequest(String identifier, boolean formatted) {
+        String[] parts = identifier.split("_");
+        try {
+            int index = Integer.parseInt(parts[1]) - 1;
+            boolean isName = parts[2].equalsIgnoreCase("name");
+
+            Map.Entry<String, Double> entry = CacheStorage.getInstance().getTopTenAt(index);
+            if (entry == null) {
+                return isName ? "N/A" : "0";
+            }
+
+            if (isName) {
+                return entry.getKey();
+            }
+
+            double value = entry.getValue();
+            return formatted ?
+                    BalanceUtils.getInstance().formatBalance(value) :
+                    String.valueOf(value);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            return "N/A";
+        }
+    }
 }

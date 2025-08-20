@@ -2,29 +2,37 @@ package dev.kaepsis.cachedeconomy.manager;
 
 import dev.kaepsis.cachedeconomy.storage.impl.PlayerStorage;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
+import java.util.Collection;
 
 public class PlayerManager {
 
-    private static PlayerManager instance = null;
+    private static volatile PlayerManager instance;
+    private final PlayerStorage playerStorage;
 
     private PlayerManager() {
-
+        this.playerStorage = PlayerStorage.getInstance();
     }
 
     public static PlayerManager getInstance() {
         if (instance == null) {
-            instance = new PlayerManager();
+            synchronized (PlayerManager.class) {
+                if (instance == null) {
+                    instance = new PlayerManager();
+                }
+            }
         }
         return instance;
     }
 
     public boolean isOnline(String playerName) {
-        return Bukkit.getOnlinePlayers().stream()
-                .anyMatch(p -> p.getName().equalsIgnoreCase(playerName));
+        Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+        return onlinePlayers.stream()
+                .anyMatch(player -> player.getName().equalsIgnoreCase(playerName));
     }
 
     public boolean isNotRegistered(String playerName) {
-        return !PlayerStorage.getInstance().getRegisteredPlayers().contains(playerName);
+        return !playerStorage.getRegisteredPlayers().contains(playerName);
     }
-
 }
