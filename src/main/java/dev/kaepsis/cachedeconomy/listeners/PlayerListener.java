@@ -35,7 +35,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         String playerName = player.getName();
 
-        double balance = cacheStorage.getBalance(playerName);
+        double balance = cacheStorage.getCachedBalance(playerName);
         playerStorage.setBalance(playerName, balance);
         Main.savedPlayers.remove(playerName);
     }
