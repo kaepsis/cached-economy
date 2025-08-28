@@ -39,8 +39,7 @@ public class EcoCommand extends BaseCommand {
     public void give(CommandSender sender, String targetName, double amount) {
         if (playerManager.isNotRegistered(targetName)) {
             chat.send(sender, langConfig.dbPlayerNotFound,
-                    "{target}", targetName,
-                    "{symbol}", currencySymbol
+                    "{target}", targetName
             );
             return;
         }
@@ -59,8 +58,7 @@ public class EcoCommand extends BaseCommand {
     public void set(CommandSender sender, String targetName, double amount) {
         if (playerManager.isNotRegistered(targetName)) {
             chat.send(sender, langConfig.dbPlayerNotFound,
-                    "{target}", targetName,
-                    "{symbol}", currencySymbol
+                    "{target}", targetName
             );
             return;
         }
@@ -81,8 +79,7 @@ public class EcoCommand extends BaseCommand {
 
         if (playerManager.isNotRegistered(targetName)) {
             chat.send(sender, langConfig.dbPlayerNotFound,
-                    "{target}", targetName,
-                    "{symbol}", currencySymbol
+                    "{target}", targetName
             );
             return;
         }

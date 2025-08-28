@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'dev.kaepsis.cachedeconomy'
-version = 'SPIGOT-RELEASE-1.1+fixGradle2'
+version = 'SPIGOT-RELEASE-1.2'
 description = "cached-economy"
 
 java {

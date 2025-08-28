@@ -46,8 +46,7 @@ public class PayCommand extends BaseCommand {
     private boolean isValidTransaction(Player player, String targetName, double amount, List<String> registeredPlayers) {
         if (!registeredPlayers.contains(targetName)) {
             chat.send(player, langConfig.dbPlayerNotFound,
-                    "{target}", targetName,
-                    "{symbol}", currencySymbol
+                    "{target}", targetName
             );
             return false;
         }
